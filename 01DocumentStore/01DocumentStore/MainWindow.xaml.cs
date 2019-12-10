@@ -37,6 +37,7 @@ namespace _01DocumentStore
 
                 OpenFileDialog openFileDialog1;  
                 openFileDialog1 = new OpenFileDialog();
+                openFileDialog1.Filter = "(X)HTM(L)-Dateien|*.HTM;*.HTML;*.XHTM;*.XHTML";
 
                 bool succ = (bool) openFileDialog1.ShowDialog();
 
@@ -55,11 +56,11 @@ namespace _01DocumentStore
                                                  "(SERVICE_NAME=ora11g)))");
 
                 //Set insert query
-                string qry = "insert into docs_xx (filename, text) values('" + openFileDialog1.FileName + "'," + " :BlobParameter )";
+                string qry = "insert into docs_xx (filename, text) values('" + openFileDialog1.FileName + "'," + " :ClobParameter )";
                 OracleParameter blobParameter = new OracleParameter();
-                blobParameter.OracleDbType = OracleDbType.Blob;
-                blobParameter.ParameterName = "BlobParameter";
-                blobParameter.Value = blob;
+                blobParameter.OracleDbType = OracleDbType.Clob;
+                blobParameter.ParameterName = "ClobParameter";
+                blobParameter.Value = Encoding.UTF8.GetString(blob, 0, blob.Length); ;
 
                 //Initialize OracleCommand object for insert.
                 OracleCommand cmd = new OracleCommand(qry, con);
