@@ -7,7 +7,12 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <Button Content="Auswählen und Hochladen" HorizontalAlignment="Left" Margin="272,209,0,0" VerticalAlignment="Top" Width="207" Click="Button_Click"/>
+        <Button Content="Auswählen und Hochladen" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="207" Click="Button_Click"/>
+        <WebBrowser x:Name="webbrowser" HorizontalAlignment="Left" Height="399" Margin="433,10,0,0" VerticalAlignment="Top" Width="349"/>
+        <ListBox x:Name="resultstable" HorizontalAlignment="Left" Height="194" Margin="261,10,0,0" VerticalAlignment="Top" Width="148" SelectionChanged="Resultstable_SelectionChanged"/>
+        <TextBox x:Name="searchparam" HorizontalAlignment="Left" Height="23" Margin="10,87,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <Button Content="Suchen" HorizontalAlignment="Left" Margin="142,90,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1"/>
+        <Button Content="Refresh" HorizontalAlignment="Left" Margin="294,225,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_2"/>
 
     </Grid>
 </Window>
