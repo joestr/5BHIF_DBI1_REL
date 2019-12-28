@@ -28,11 +28,14 @@ namespace _01DocumentStore
         private ObservableCollection<string> resultlist = new ObservableCollection<string>();
         Dictionary<string, string> map = new Dictionary<string, string>();
 
+        private ObservableCollection<string> docslist = new ObservableCollection<string>();
+        Dictionary<string, string> docsmap = new Dictionary<string, string>();
+
         public MainWindow()
         {
             InitializeComponent();
 
-            
+            DatabaseHelper.GetInstance("ctxsys_userb", "ctxsysuserb", "db.htl-villach.at", 1512, "ora11g");
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -56,34 +59,7 @@ namespace _01DocumentStore
                 //Read Image Bytes into a byte array
                 byte[] blob = File.ReadAllBytes(openFileDialog1.FileName);
 
-                //Initialize Oracle Server Connection
-                OracleConnection con = new OracleConnection(@"user id=ctxsys;password=ctxsys;data source=" +
-                                                 "(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)" +
-                                                 "(HOST=db.htl-villach.at)(PORT=1521))(CONNECT_DATA=" +
-                                                 "(SERVICE_NAME=ora11g)))");
-
-                //Set insert query
-                string qry = "insert into docs_xx (filename, text) values('" + openFileDialog1.FileName + "'," + " :ClobParameter )";
-                OracleParameter blobParameter = new OracleParameter();
-                blobParameter.OracleDbType = OracleDbType.Clob;
-                blobParameter.ParameterName = "ClobParameter";
-                blobParameter.Value = Encoding.UTF8.GetString(blob, 0, blob.Length); ;
-
-                //Initialize OracleCommand object for insert.
-                OracleCommand cmd = new OracleCommand(qry, con);
-
-                //We are passing Name and Blob byte data as Oracle parameters.
-                cmd.Parameters.Add(blobParameter);
-
-                //Open connection and execute insert query.
-                con.Open();
-                cmd.ExecuteNonQuery();
-
-                MessageBox.Show("Image added to blob field");
-                //GetImagesFromDatabase();
-                cmd.Dispose();
-                con.Close();
-                //this.Close();
+                DatabaseHelper.GetInstance().SaveDocument(openFileDialog1.FileName, blob);
 
             }
             catch (Exception ex)
@@ -92,16 +68,16 @@ namespace _01DocumentStore
             }
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void ButtonSearchClick(object sender, RoutedEventArgs e)
         {
             //Initialize Oracle Server Connection
-            OracleConnection con = new OracleConnection(@"user id=ctxsys;password=ctxsys;data source=" +
-                                             "(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)" +
-                                             "(HOST=db.htl-villach.at)(PORT=1521))(CONNECT_DATA=" +
-                                             "(SERVICE_NAME=ora11g)))");
+            OracleConnection con = new OracleConnection(@"user id=ctxsys_userb;password=ctxsysuserb;data source=" +
+                                                 "(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)" +
+                                                 "(HOST=db.htl-villach.at)(PORT=1521))(CONNECT_DATA=" +
+                                                 "(SERVICE_NAME=ora11g)))");
 
 
-            var cmd = new OracleCommand("DOCS_XX_MARKUP", con);
+            var cmd = new OracleCommand("DOCS_18_MARKUP", con);
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             //ASSIGN PARAMETERS TO BE PASSED
             cmd.Parameters.Add("suchstr", OracleDbType.Varchar2).Value = searchparam.Text;
@@ -125,13 +101,13 @@ namespace _01DocumentStore
             this.resultstable.ItemsSource = this.resultlist;
 
             //Initialize Oracle Server Connection
-            OracleConnection con = new OracleConnection(@"user id=ctxsys;password=ctxsys;data source=" +
-                                             "(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)" +
-                                             "(HOST=db.htl-villach.at)(PORT=1521))(CONNECT_DATA=" +
-                                             "(SERVICE_NAME=ora11g)))");
+            OracleConnection con = new OracleConnection(@"user id=ctxsys_userb;password=ctxsysuserb;data source=" +
+                                                 "(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)" +
+                                                 "(HOST=db.htl-villach.at)(PORT=1521))(CONNECT_DATA=" +
+                                                 "(SERVICE_NAME=ora11g)))");
 
             //Set insert query
-            string qry = "select * from docs_xx_results";
+            string qry = "select * from docs_18_results";
 
             //Initialize OracleCommand object for insert.
             OracleCommand cmd = new OracleCommand(qry, con);
@@ -141,7 +117,7 @@ namespace _01DocumentStore
             con.Open();
             var odr = cmd.ExecuteReader();
 
-
+            map.Clear();
 
             while (odr.Read())
             {
@@ -159,7 +135,6 @@ namespace _01DocumentStore
 
 
 
-            MessageBox.Show("Image added to blob field");
             //GetImagesFromDatabase();
             cmd.Dispose();
             con.Close();
@@ -168,11 +143,69 @@ namespace _01DocumentStore
 
         private void Resultstable_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            this.doclist.SelectedIndex = -1;
+
             int idx = this.resultstable.SelectedIndex;
 
             if (idx < 0) return;
 
             this.webbrowser.NavigateToString(this.map[(string) this.resultstable.SelectedValue]);
+        }
+
+        private void Button_Click_3(object sender, RoutedEventArgs e)
+        {
+            this.doclist.ItemsSource = this.docslist;
+
+            //Initialize Oracle Server Connection
+            OracleConnection con = new OracleConnection(@"user id=ctxsys_userb;password=ctxsysuserb;data source=" +
+                                                 "(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)" +
+                                                 "(HOST=db.htl-villach.at)(PORT=1521))(CONNECT_DATA=" +
+                                                 "(SERVICE_NAME=ora11g)))");
+
+            //Set insert query
+            string qry = "select * from docs_18";
+
+            //Initialize OracleCommand object for insert.
+            OracleCommand cmd = new OracleCommand(qry, con);
+
+
+            //Open connection and execute insert query.
+            con.Open();
+            var odr = cmd.ExecuteReader();
+
+            docsmap.Clear();
+
+            while (odr.Read())
+            {
+
+                docsmap.Add(odr.GetString(0), odr.GetString(1));
+            }
+
+            this.docslist.Clear();
+
+
+            docsmap.Keys.ToList().ForEach((str) =>
+            {
+                this.docslist.Add(str);
+            });
+
+
+
+            //GetImagesFromDatabase();
+            cmd.Dispose();
+            con.Close();
+            //this.Close();
+        }
+
+        private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            this.resultstable.SelectedIndex = -1;
+
+            int idx = this.doclist.SelectedIndex;
+
+            if (idx < 0) return;
+
+            this.webbrowser.NavigateToString(this.docsmap[(string)this.doclist.SelectedValue]);
         }
     }
 }
