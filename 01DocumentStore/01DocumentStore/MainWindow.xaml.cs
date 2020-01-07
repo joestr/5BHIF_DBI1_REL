@@ -25,42 +25,34 @@ namespace _01DocumentStore
     /// </summary>
     public partial class MainWindow : Window
     {
-        private ObservableCollection<string> resultlist = new ObservableCollection<string>();
-        Dictionary<string, string> map = new Dictionary<string, string>();
+        private ObservableCollection<string> filteredDocumentList = new ObservableCollection<string>();
+        Dictionary<string, string> filteredDocuments = new Dictionary<string, string>();
 
-        private ObservableCollection<string> docslist = new ObservableCollection<string>();
-        Dictionary<string, string> docsmap = new Dictionary<string, string>();
+        private ObservableCollection<string> savedDocumentList = new ObservableCollection<string>();
+        Dictionary<string, string> savedDocuments = new Dictionary<string, string>();
 
         public MainWindow()
         {
             InitializeComponent();
 
-            DatabaseHelper.GetInstance("ctxsys_userb", "ctxsysuserb", "db.htl-villach.at", 1512, "ora11g");
+            DatabaseHelper.GetInstance("ctxsys_userb", "ctxsysuserb", "db.htl-villach.at", 1512, "ora11g", "documentstore_", "_17");
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Button_SelectAndUpload_Click(object sender, RoutedEventArgs e)
         {
             try
             {
+                OpenFileDialog openFileDialog;  
+                openFileDialog = new OpenFileDialog();
+                openFileDialog.Filter = "(X)HTM(L)-Dateien|*.HTM;*.HTML;*.XHTM;*.XHTML";
 
+                bool success = (bool) openFileDialog.ShowDialog();
 
+                if (!success) return;
 
-                OpenFileDialog openFileDialog1;  
-                openFileDialog1 = new OpenFileDialog();
-                openFileDialog1.Filter = "(X)HTM(L)-Dateien|*.HTM;*.HTML;*.XHTM;*.XHTML";
+                byte[] clob = File.ReadAllBytes(openFileDialog.FileName);
 
-                bool succ = (bool) openFileDialog1.ShowDialog();
-
-                if (!succ) return;
-
-                
-
-
-                //Read Image Bytes into a byte array
-                byte[] blob = File.ReadAllBytes(openFileDialog1.FileName);
-
-                DatabaseHelper.GetInstance().SaveDocument(openFileDialog1.FileName, blob);
-
+                DatabaseHelper.GetInstance().SaveDocument(openFileDialog.FileName, clob);
             }
             catch (Exception ex)
             {
@@ -68,144 +60,64 @@ namespace _01DocumentStore
             }
         }
 
-        private void ButtonSearchClick(object sender, RoutedEventArgs e)
+        private void Button_Search_Click(object sender, RoutedEventArgs e)
         {
-            //Initialize Oracle Server Connection
-            OracleConnection con = new OracleConnection(@"user id=ctxsys_userb;password=ctxsysuserb;data source=" +
-                                                 "(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)" +
-                                                 "(HOST=db.htl-villach.at)(PORT=1521))(CONNECT_DATA=" +
-                                                 "(SERVICE_NAME=ora11g)))");
-
-
-            var cmd = new OracleCommand("DOCS_18_MARKUP", con);
-            cmd.CommandType = System.Data.CommandType.StoredProcedure;
-            //ASSIGN PARAMETERS TO BE PASSED
-            cmd.Parameters.Add("suchstr", OracleDbType.Varchar2).Value = searchparam.Text;
-            //THIS PARAMETER MAY BE USED TO RETURN RESULT OF PROCEDURE CALL
-            //cmd.Parameters.Add("vSUCCESS", OracleDbType.Varchar2, 1);
-            //cmd.Parameters["vSUCCESS"].Direction = ParameterDirection.Output;
-            //USE THIS PARAMETER CASE CURSOR IS RETURNED FROM PROCEDURE
-            //cmd.Parameters.Add("vCHASSIS_RESULT", OracleDbType.RefCursor, ParameterDirection.InputOutput);
-            //CALL PROCEDURE
-            con.Open();
-            OracleDataAdapter da = new OracleDataAdapter(cmd);
-            cmd.ExecuteNonQuery();
-
-            cmd.Dispose();
-            con.Close();
-            //this.Close();
+            DatabaseHelper.GetInstance().FilterSavedDocuments(TextField_Search.Text);
         }
 
-        private void Button_Click_2(object sender, RoutedEventArgs e)
+        private void Button_Refresh_ListBox_SavedDocuments(object sender, RoutedEventArgs e)
         {
-            this.resultstable.ItemsSource = this.resultlist;
+            this.ListBox_SavedDocuments.ItemsSource = this.savedDocuments;
+            this.savedDocumentList.Clear();
 
-            //Initialize Oracle Server Connection
-            OracleConnection con = new OracleConnection(@"user id=ctxsys_userb;password=ctxsysuserb;data source=" +
-                                                 "(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)" +
-                                                 "(HOST=db.htl-villach.at)(PORT=1521))(CONNECT_DATA=" +
-                                                 "(SERVICE_NAME=ora11g)))");
+            var savedDocuments = DatabaseHelper.GetInstance().GetSavedDocuments();
 
-            //Set insert query
-            string qry = "select * from docs_18_results";
-
-            //Initialize OracleCommand object for insert.
-            OracleCommand cmd = new OracleCommand(qry, con);
-
-
-            //Open connection and execute insert query.
-            con.Open();
-            var odr = cmd.ExecuteReader();
-
-            map.Clear();
-
-            while (odr.Read())
+            foreach(KeyValuePair<string, string> keyValuePair in savedDocuments)
             {
-
-                map.Add(odr.GetString(0), odr.GetString(1));
+                this.savedDocuments.Add(keyValuePair.Key, keyValuePair.Value);
+                this.savedDocumentList.Add(keyValuePair.Key);
             }
-
-            this.resultlist.Clear();
-
-
-            map.Keys.ToList().ForEach((str) =>
-            {
-                this.resultlist.Add(str);
-            });
-
-
-
-            //GetImagesFromDatabase();
-            cmd.Dispose();
-            con.Close();
-            //this.Close();
         }
 
-        private void Resultstable_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void Button_Refresh_ListBox_FilteredDocuments(object sender, RoutedEventArgs e)
         {
-            this.doclist.SelectedIndex = -1;
+            this.ListBox_FilteredDocuments.ItemsSource = this.filteredDocumentList;
+            this.savedDocumentList.Clear();
 
-            int idx = this.resultstable.SelectedIndex;
+            var savedDocuments = DatabaseHelper.GetInstance().GetSavedDocuments();
+
+            foreach (KeyValuePair<string, string> keyValuePair in savedDocuments)
+            {
+                this.savedDocuments.Add(keyValuePair.Key, keyValuePair.Value);
+                this.savedDocumentList.Add(keyValuePair.Key);
+            }
+        }
+
+        private void ListBox_SavedDocuments_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            this.ListBox_SavedDocuments.SelectedIndex = -1;
+
+            int idx = this.ListBox_SavedDocuments.SelectedIndex;
 
             if (idx < 0) return;
 
-            this.webbrowser.NavigateToString(this.map[(string) this.resultstable.SelectedValue]);
+            this.webbrowser.NavigateToString(this.savedDocuments[(string)this.ListBox_FilteredDocuments.SelectedValue]);
         }
 
-        private void Button_Click_3(object sender, RoutedEventArgs e)
+        private void ListBox_FilteredDocument_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            this.doclist.ItemsSource = this.docslist;
+            this.ListBox_FilteredDocuments.SelectedIndex = -1;
 
-            //Initialize Oracle Server Connection
-            OracleConnection con = new OracleConnection(@"user id=ctxsys_userb;password=ctxsysuserb;data source=" +
-                                                 "(DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)" +
-                                                 "(HOST=db.htl-villach.at)(PORT=1521))(CONNECT_DATA=" +
-                                                 "(SERVICE_NAME=ora11g)))");
-
-            //Set insert query
-            string qry = "select * from docs_18";
-
-            //Initialize OracleCommand object for insert.
-            OracleCommand cmd = new OracleCommand(qry, con);
-
-
-            //Open connection and execute insert query.
-            con.Open();
-            var odr = cmd.ExecuteReader();
-
-            docsmap.Clear();
-
-            while (odr.Read())
-            {
-
-                docsmap.Add(odr.GetString(0), odr.GetString(1));
-            }
-
-            this.docslist.Clear();
-
-
-            docsmap.Keys.ToList().ForEach((str) =>
-            {
-                this.docslist.Add(str);
-            });
-
-
-
-            //GetImagesFromDatabase();
-            cmd.Dispose();
-            con.Close();
-            //this.Close();
-        }
-
-        private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            this.resultstable.SelectedIndex = -1;
-
-            int idx = this.doclist.SelectedIndex;
+            int idx = this.ListBox_SavedDocuments.SelectedIndex;
 
             if (idx < 0) return;
 
-            this.webbrowser.NavigateToString(this.docsmap[(string)this.doclist.SelectedValue]);
+            this.webbrowser.NavigateToString(this.savedDocuments[(string)this.ListBox_SavedDocuments.SelectedValue]);
+        }
+
+        private void Button_CheckSchemaClick(object sender, RoutedEventArgs e)
+        {
+            DatabaseHelper.GetInstance().CheckSchema();
         }
     }
 }
