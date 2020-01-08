@@ -16,6 +16,7 @@
         <ListBox x:Name="ListBox_SavedDocuments" HorizontalAlignment="Left" Height="148" Margin="10,59,0,0" VerticalAlignment="Top" Width="207" SelectionChanged="ListBox_SavedDocuments_SelectionChanged"/>
         <Button Content="Refresh&#xD;&#xA;" HorizontalAlignment="Left" Margin="222,59,0,0" VerticalAlignment="Top" Width="75" Height="19" Click="Button_Refresh_ListBox_SavedDocuments"/>
         <Button Content="Check schema" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Margin="10,9,0,0" Click="Button_CheckSchemaClick"/>
+        <Button Content="Truncate" HorizontalAlignment="Left" Margin="222,292,0,0" VerticalAlignment="Top" Width="75" Click="Button_Truncate_ListBox_FilteredDocuments_Click"/>
 
     </Grid>
 </Window>

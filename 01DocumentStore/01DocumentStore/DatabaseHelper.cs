@@ -239,7 +239,7 @@ namespace _01DocumentStore
             //cmd.Parameters.Add("vCHASSIS_RESULT", OracleDbType.RefCursor, ParameterDirection.InputOutput);
             //CALL PROCEDURE
             this.connection.Open();
-            OracleDataAdapter da = new OracleDataAdapter(command);
+            //OracleDataAdapter da = new OracleDataAdapter(command);
             int result = command.ExecuteNonQuery();
 
             command.Dispose();
@@ -268,6 +268,21 @@ namespace _01DocumentStore
             this.connection.Close();
 
             return result;
+        }
+
+        public void TruncateResultsTable()
+        {
+            string query = $"DELETE FROM {this.prefix}DOCS_RESULTS{this.suffix} WHERE 1 = 1";
+
+            OracleCommand cmd = new OracleCommand(query, this.connection);
+
+            this.connection.Open();
+
+            cmd.ExecuteNonQuery();
+
+            cmd.Dispose();
+
+            this.connection.Close();
         }
     }
 }

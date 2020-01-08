@@ -68,6 +68,7 @@ namespace _01DocumentStore
         private void Button_Refresh_ListBox_SavedDocuments(object sender, RoutedEventArgs e)
         {
             this.ListBox_SavedDocuments.ItemsSource = this.savedDocumentList;
+            this.savedDocuments.Clear();
             this.savedDocumentList.Clear();
 
             var savedDocuments = DatabaseHelper.GetInstance().GetSavedDocuments();
@@ -82,6 +83,7 @@ namespace _01DocumentStore
         private void Button_Refresh_ListBox_FilteredDocuments(object sender, RoutedEventArgs e)
         {
             this.ListBox_FilteredDocuments.ItemsSource = this.filteredDocumentList;
+            this.filteredDocuments.Clear();
             this.filteredDocumentList.Clear();
 
             var filteredDocuments = DatabaseHelper.GetInstance().GetFilteredDocuments();
@@ -118,6 +120,11 @@ namespace _01DocumentStore
         private void Button_CheckSchemaClick(object sender, RoutedEventArgs e)
         {
             DatabaseHelper.GetInstance().CheckSchema();
+        }
+
+        private void Button_Truncate_ListBox_FilteredDocuments_Click(object sender, RoutedEventArgs e)
+        {
+            DatabaseHelper.GetInstance().TruncateResultsTable();
         }
     }
 }
