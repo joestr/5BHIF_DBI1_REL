@@ -76,8 +76,9 @@ namespace _01DocumentStore
 
             if(!hasDocsTable)
             {
-                query = $"CREATE TABLE {this.prefix}DOCS{this.suffix} (filename VARCHAR2(255) PRIMARY KEY, text CLOB);";
+                query = $"CREATE TABLE {this.prefix}DOCS{this.suffix} (filename VARCHAR2(255) PRIMARY KEY, text CLOB)";
                 command = new OracleCommand(query, this.connection);
+                this.connection.Open();
                 command.ExecuteNonQuery();
                 command.Dispose();
                 this.connection.Close();
@@ -97,9 +98,10 @@ namespace _01DocumentStore
                     CREATE INDEX {this.prefix}DOCS_INDEX{this.suffix}
                     ON {this.prefix}DOCS{this.suffix}(text)
                         INDEXTYPE IS CTXSYS.CONTEXT
-	                PARAMETERS ('FILTER CTXSYS.NULL_FILTER SECTION GROUP CTXSYS.HTML_SECTION_GROUP sync (on commit)');
+	                PARAMETERS ('FILTER CTXSYS.NULL_FILTER SECTION GROUP CTXSYS.HTML_SECTION_GROUP sync (on commit)')
                 ";
                 command = new OracleCommand(query, this.connection);
+                this.connection.Open();
                 command.ExecuteNonQuery();
                 command.Dispose();
                 this.connection.Close();
@@ -115,8 +117,9 @@ namespace _01DocumentStore
             
             if(!hasResultTable)
             {
-                query = $"CREATE TABLE {this.prefix}DOCS_RESULTS{this.suffix} (filename VARCHAR2(255) PRIMARY KEY, text CLOB);";
+                query = $"CREATE TABLE {this.prefix}DOCS_RESULTS{this.suffix} (filename VARCHAR2(255) PRIMARY KEY, text CLOB)";
                 command = new OracleCommand(query, this.connection);
+                this.connection.Open();
                 command.ExecuteNonQuery();
                 command.Dispose();
                 this.connection.Close();
@@ -133,7 +136,7 @@ namespace _01DocumentStore
             if(!hasMarkupProcedure)
             {
                 query = $@"
-                    CREATE OR REPLACE procedure {this.prefix}DOCS_MARKUP{this.suffix} (suchstr varchar2)
+                    CREATE procedure {this.prefix}DOCS_MARKUP{this.suffix} (suchstr varchar2)
                      as
                         qid number;
                     lobMarkup CLOB; --Character Large Object
@@ -141,7 +144,7 @@ namespace _01DocumentStore
                       qid := 1;
                       for c_rec in (
                         select filename, text
-                        from docs_xx
+                        from {this.prefix}DOCS{this.suffix}
                         where contains(text, suchstr, 1) > 0)
                     loop
                         dbms_output.put_line('-----VOR--------');
@@ -156,7 +159,7 @@ namespace _01DocumentStore
                             endtag => '</FONT></I>'
                         );
 
-                        insert into docs_xx_results values(c_rec.FILENAME, lobMarkup);
+                        insert into {this.prefix}DOCS_RESULTS{this.suffix} values(c_rec.FILENAME, lobMarkup);
                         dbms_output.put_line('-----NACH--------');
 
                         qid:= qid + 1;
@@ -164,12 +167,13 @@ namespace _01DocumentStore
                 end {this.prefix}DOCS_MARKUP{this.suffix};
                 ";
                 command = new OracleCommand(query, this.connection);
+                this.connection.Open();
                 command.ExecuteNonQuery();
                 command.Dispose();
                 this.connection.Close();
             }
 
-            throw new NotImplementedException("Not implemented! Take care of the schema yourself!");
+            return true;
         }
 
         public int SaveDocument(string fileName, byte[] text)

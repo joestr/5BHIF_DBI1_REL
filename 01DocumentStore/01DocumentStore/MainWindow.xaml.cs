@@ -35,7 +35,7 @@ namespace _01DocumentStore
         {
             InitializeComponent();
 
-            DatabaseHelper.GetInstance("ctxsys_userb", "ctxsysuserb", "db.htl-villach.at", 1512, "ora11g", "documentstore_", "_17");
+            DatabaseHelper.GetInstance("ctxsys_userb", "ctxsysuserb", "db.htl-villach.at", 1521, "ora11g", "ds_", "_17");
         }
 
         private void Button_SelectAndUpload_Click(object sender, RoutedEventArgs e)
@@ -67,7 +67,7 @@ namespace _01DocumentStore
 
         private void Button_Refresh_ListBox_SavedDocuments(object sender, RoutedEventArgs e)
         {
-            this.ListBox_SavedDocuments.ItemsSource = this.savedDocuments;
+            this.ListBox_SavedDocuments.ItemsSource = this.savedDocumentList;
             this.savedDocumentList.Clear();
 
             var savedDocuments = DatabaseHelper.GetInstance().GetSavedDocuments();
@@ -82,29 +82,18 @@ namespace _01DocumentStore
         private void Button_Refresh_ListBox_FilteredDocuments(object sender, RoutedEventArgs e)
         {
             this.ListBox_FilteredDocuments.ItemsSource = this.filteredDocumentList;
-            this.savedDocumentList.Clear();
+            this.filteredDocumentList.Clear();
 
-            var savedDocuments = DatabaseHelper.GetInstance().GetSavedDocuments();
+            var filteredDocuments = DatabaseHelper.GetInstance().GetFilteredDocuments();
 
-            foreach (KeyValuePair<string, string> keyValuePair in savedDocuments)
+            foreach (KeyValuePair<string, string> keyValuePair in filteredDocuments)
             {
-                this.savedDocuments.Add(keyValuePair.Key, keyValuePair.Value);
-                this.savedDocumentList.Add(keyValuePair.Key);
+                this.filteredDocuments.Add(keyValuePair.Key, keyValuePair.Value);
+                this.filteredDocumentList.Add(keyValuePair.Key);
             }
         }
 
         private void ListBox_SavedDocuments_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            this.ListBox_SavedDocuments.SelectedIndex = -1;
-
-            int idx = this.ListBox_SavedDocuments.SelectedIndex;
-
-            if (idx < 0) return;
-
-            this.webbrowser.NavigateToString(this.savedDocuments[(string)this.ListBox_FilteredDocuments.SelectedValue]);
-        }
-
-        private void ListBox_FilteredDocument_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             this.ListBox_FilteredDocuments.SelectedIndex = -1;
 
@@ -113,6 +102,17 @@ namespace _01DocumentStore
             if (idx < 0) return;
 
             this.webbrowser.NavigateToString(this.savedDocuments[(string)this.ListBox_SavedDocuments.SelectedValue]);
+        }
+
+        private void ListBox_FilteredDocument_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            this.ListBox_SavedDocuments.SelectedIndex = -1;
+
+            int idx = this.ListBox_FilteredDocuments.SelectedIndex;
+
+            if (idx < 0) return;
+
+            this.webbrowser.NavigateToString(this.filteredDocuments[(string)this.ListBox_FilteredDocuments.SelectedValue]);
         }
 
         private void Button_CheckSchemaClick(object sender, RoutedEventArgs e)
