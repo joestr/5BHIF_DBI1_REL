@@ -44,7 +44,7 @@ namespace _01DocumentStore
             {
                 OpenFileDialog openFileDialog;  
                 openFileDialog = new OpenFileDialog();
-                openFileDialog.Filter = "(X)HTM(L)-Dateien|*.HTM;*.HTML;*.XHTM;*.XHTML";
+                openFileDialog.Filter = "(X)HTM(L)-Datei, PDF-Datei|*.HTM;*.HTML;*.XHTM;*.XHTML;*.PDF";
 
                 bool success = (bool) openFileDialog.ShowDialog();
 
