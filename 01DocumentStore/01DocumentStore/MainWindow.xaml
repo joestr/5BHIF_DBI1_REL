@@ -5,18 +5,23 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_01DocumentStore"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="618" Width="1083.5">
     <Grid>
-        <Button Content="Auswählen und Hochladen" HorizontalAlignment="Left" Margin="10,34,0,0" VerticalAlignment="Top" Width="207" Click="Button_SelectAndUpload_Click"/>
-        <WebBrowser x:Name="webbrowser" HorizontalAlignment="Left" Height="399" Margin="343,10,0,0" VerticalAlignment="Top" Width="439"/>
-        <ListBox x:Name="ListBox_FilteredDocuments" HorizontalAlignment="Left" Height="135" Margin="10,267,0,0" VerticalAlignment="Top" Width="207" SelectionChanged="ListBox_FilteredDocument_SelectionChanged"/>
-        <TextBox x:Name="TextField_Search" HorizontalAlignment="Left" Height="23" Margin="10,239,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
-        <Button Content="Suchen" HorizontalAlignment="Left" Margin="142,242,0,0" VerticalAlignment="Top" Width="75" Click="Button_Search_Click"/>
-        <Button Content="Refresh" HorizontalAlignment="Left" Margin="222,267,0,0" VerticalAlignment="Top" Width="75" Click="Button_Refresh_ListBox_FilteredDocuments"/>
+        <Button Content="Select and upload" HorizontalAlignment="Left" Margin="10,34,0,0" VerticalAlignment="Top" Width="207" Click="Button_SelectAndUpload_Click"/>
+        <WebBrowser x:Name="webbrowser" HorizontalAlignment="Left" Height="567" Margin="326,10,0,0" VerticalAlignment="Top" Width="740"/>
+        <ListBox x:Name="ListBox_FilteredDocuments" HorizontalAlignment="Left" Height="135" Margin="10,442,0,0" VerticalAlignment="Top" Width="207" SelectionChanged="ListBox_FilteredDocument_SelectionChanged"/>
+        <TextBox x:Name="TextField_Search" HorizontalAlignment="Left" Height="23" Margin="10,414,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <Button Content="Suchen" HorizontalAlignment="Left" Margin="142,413,0,0" VerticalAlignment="Top" Width="75" Click="Button_Search_Click"/>
+        <Button Content="Refresh" HorizontalAlignment="Left" Margin="222,442,0,0" VerticalAlignment="Top" Width="75" Click="Button_Refresh_ListBox_FilteredDocuments"/>
         <ListBox x:Name="ListBox_SavedDocuments" HorizontalAlignment="Left" Height="148" Margin="10,59,0,0" VerticalAlignment="Top" Width="207" SelectionChanged="ListBox_SavedDocuments_SelectionChanged"/>
         <Button Content="Refresh&#xD;&#xA;" HorizontalAlignment="Left" Margin="222,59,0,0" VerticalAlignment="Top" Width="75" Height="19" Click="Button_Refresh_ListBox_SavedDocuments"/>
         <Button Content="Check schema" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" Margin="10,9,0,0" Click="Button_CheckSchemaClick"/>
-        <Button Content="Truncate" HorizontalAlignment="Left" Margin="222,292,0,0" VerticalAlignment="Top" Width="75" Click="Button_Truncate_ListBox_FilteredDocuments_Click"/>
+        <Button Content="Truncate" HorizontalAlignment="Left" Margin="222,467,0,0" VerticalAlignment="Top" Width="75" Click="Button_Truncate_ListBox_FilteredDocuments_Click"/>
+        <ListBox x:Name="ListBox_EncryptedDocuments" HorizontalAlignment="Left" Height="154" Margin="10,230,0,0" VerticalAlignment="Top" Width="207" SelectionChanged="ListBox_EncryptedDocuments_SelectionChanged"/>
+        <Button Content="Encrypt" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="222,83,0,0" Click="Button_EncryptDocument"/>
+        <Button Content="Decrypt" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="222,255,0,0" Click="Button_DecryptDocument"/>
+        <Button Content="Refresh" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="222,230,0,0" Click="Button_Refresh_ListBox_EncryptedDocuments"/>
+        <Button Content="Truncate" HorizontalAlignment="Left" Margin="223,280,0,0" VerticalAlignment="Top" Width="74" Click="Button_Truncate_EncryptedDocuments"/>
 
     </Grid>
 </Window>

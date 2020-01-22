@@ -125,6 +125,24 @@ namespace _01DocumentStore
                 this.connection.Close();
             }
 
+            query = $"SELECT table_name FROM USER_TABLES WHERE table_name = '{this.prefix}DOCS_ENCRYPTED{this.suffix}'";
+            command = new OracleCommand(query, this.connection);
+            this.connection.Open();
+            oDR = command.ExecuteReader();
+            if (oDR.HasRows) hasResultTable = true;
+            command.Dispose();
+            this.connection.Close();
+
+            if (!hasResultTable)
+            {
+                query = $"CREATE TABLE {this.prefix}DOCS_ENCRYPTED{this.suffix} (filename VARCHAR2(255) PRIMARY KEY, text CLOB)";
+                command = new OracleCommand(query, this.connection);
+                this.connection.Open();
+                command.ExecuteNonQuery();
+                command.Dispose();
+                this.connection.Close();
+            }
+
             query = $"SELECT object_name  FROM USER_PROCEDURES WHERE object_name = '{this.prefix}DOCS_RESULTS{this.suffix}'";
             command = new OracleCommand(query, this.connection);
             this.connection.Open();
@@ -273,6 +291,71 @@ namespace _01DocumentStore
         public void TruncateResultsTable()
         {
             string query = $"DELETE FROM {this.prefix}DOCS_RESULTS{this.suffix} WHERE 1 = 1";
+
+            OracleCommand cmd = new OracleCommand(query, this.connection);
+
+            this.connection.Open();
+
+            cmd.ExecuteNonQuery();
+
+            cmd.Dispose();
+
+            this.connection.Close();
+        }
+
+        public int SaveEncryptedDoucment(string fileName, byte[] data)
+        {
+            string query = $"insert into {this.prefix}DOCS_ENCRYPTED{this.suffix} (filename, text) VALUES(:fileNameParameter, :textParameter)";
+
+            OracleParameter textParameter = new OracleParameter();
+            textParameter.OracleDbType = OracleDbType.Clob;
+            textParameter.ParameterName = "textParameter";
+            textParameter.Value = Encoding.UTF8.GetString(data, 0, data.Length);
+
+            OracleParameter fileNameParameter = new OracleParameter();
+            fileNameParameter.OracleDbType = OracleDbType.Varchar2;
+            fileNameParameter.ParameterName = "fileNameParameter";
+            fileNameParameter.Value = fileName;
+
+            OracleCommand command = new OracleCommand(query, this.connection);
+
+            command.Parameters.Add(fileNameParameter);
+            command.Parameters.Add(textParameter);
+
+            this.connection.Open();
+            int result = command.ExecuteNonQuery();
+
+            command.Dispose();
+            this.connection.Close();
+
+            return result;
+        }
+
+        public IDictionary<string, string> GetEncryptedDocuments()
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+
+            string query = $"SELECT * FROM {this.prefix}DOCS_ENCRYPTED{this.suffix}";
+
+            OracleCommand cmd = new OracleCommand(query, this.connection);
+
+            this.connection.Open();
+            var odr = cmd.ExecuteReader();
+
+            while (odr.Read())
+            {
+                result.Add(odr.GetString(0), odr.GetString(1));
+            }
+
+            cmd.Dispose();
+            this.connection.Close();
+
+            return result;
+        }
+
+        public void TruncateEncryptedTable()
+        {
+            string query = $"DELETE FROM {this.prefix}DOCS_ENCRYPTED{this.suffix} WHERE 1 = 1";
 
             OracleCommand cmd = new OracleCommand(query, this.connection);
 
